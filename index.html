@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#211a54">
+  <meta name="description" content="創星程式基地：Blockly × SmartRing 互動程式教學實驗室">
+  <title>創星程式基地｜SparkCode Lab</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="創星程式基地">
+        <div class="brand-mark" aria-hidden="true"><span>✦</span></div>
+        <div><h1>創星程式基地</h1><p>SparkCode Lab · Blockly × SmartRing</p></div>
+      </div>
+      <nav class="actionbar" aria-label="主要工具">
+        <button class="action" id="connectBtn" title="連接 SmartRing 實體裝置"><span>◉</span> 連接裝置</button>
+        <button class="action" id="simBtn" title="開啟 SmartRing 模擬器"><span>◌</span> 開啟模擬</button>
+        <button class="action" id="sampleBtn" disabled><span>✦</span> 載入範例</button>
+        <button class="action primary" id="runBtn"><span>▶</span> 執行</button>
+        <button class="action danger" id="stopBtn" disabled><span>■</span> 中止</button>
+        <button class="action" id="saveBtn"><span>↓</span> 存檔</button>
+        <label class="action file-action"><span>↑</span> 載入<input id="loadInput" type="file" accept=".json,.blocks,.spark"></label>
+        <button class="action ghost" id="clearBtn"><span>×</span> 清除</button>
+      </nav>
+    </header>
+
+    <section class="control-strip" aria-label="學習資料與課程">
+      <div class="profile-fields">
+        <label><span>班級</span><input id="studentClass" autocomplete="off" placeholder="例：501" maxlength="12"></label>
+        <label><span>座號</span><input id="studentNumber" inputmode="numeric" placeholder="07" maxlength="4"></label>
+        <label><span>姓名</span><input id="studentName" autocomplete="off" placeholder="輸入姓名" maxlength="16"></label>
+        <button class="mini-btn" id="clearProfileBtn">清除資料</button>
+      </div>
+      <div class="course-fields">
+        <label><span>課程代碼</span><input id="courseCode" autocomplete="off" placeholder="例：SRB00" maxlength="8"></label>
+        <label><span>子任務</span><select id="taskSelect" disabled><option>請先載入課程</option></select></label>
+        <div class="mode-switch" aria-label="學習模式">
+          <span>模式</span>
+          <button class="active" data-mode="learn">學習</button>
+          <button data-mode="challenge">挑戰</button>
+        </div>
+        <button class="strip-btn" id="loadCourseBtn">載入課程</button>
+        <button class="strip-btn mint" id="assessBtn" disabled>系統評分</button>
+        <button class="strip-btn lilac" id="submitBtn" disabled>提交成績</button>
+      </div>
+    </section>
+
+    <main class="main-grid">
+      <section class="workspace-card">
+        <div class="workspace-toolbar">
+          <div class="tabs" role="tablist">
+            <button class="tab active" id="blocksTab" role="tab" aria-selected="true">積木程式</button>
+            <button class="tab" id="codeTab" role="tab" aria-selected="false">JavaScript</button>
+          </div>
+          <div class="workspace-meta"><span id="blockCount">0 個積木</span><button class="mini-btn" id="copyCodeBtn">複製程式碼</button></div>
+        </div>
+        <div class="workspace-stage">
+          <div id="blocklyDiv" aria-label="Blockly 積木工作區"></div>
+          <pre id="codeView" hidden><code>// 把積木拖進工作區，程式碼會自動出現在這裡。</code></pre>
+          <div class="load-error" id="loadError" hidden>
+            <strong>積木工具載入失敗</strong><span>請確認網路連線後重新整理頁面。</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel task-panel">
+          <button class="panel-heading" data-collapse="taskBody" aria-expanded="true">
+            <span><i class="dot coral"></i> 今日任務</span><b>收合⌃</b>
+          </button>
+          <div class="panel-body" id="taskBody">
+            <div class="mission-trail" id="missionTrail" aria-label="任務進度"></div>
+            <div id="taskInfo" class="task-info empty-state">
+              <span class="empty-icon">⌁</span>
+              <h2>輸入課程代碼，開始探索</h2>
+              <p>試試看 <button class="text-chip" data-course="SRB00">SRB00</button> 或 <button class="text-chip" data-course="CPB00">CPB00</button></p>
+            </div>
+            <button class="wide-link" id="detailBtn" disabled>查看完整任務與提示 →</button>
+          </div>
+        </section>
+
+        <section class="panel device-panel">
+          <button class="panel-heading" data-collapse="deviceBody" aria-expanded="true">
+            <span><i class="dot mint"></i> 裝置狀態</span><b>收合⌃</b>
+          </button>
+          <div class="panel-body" id="deviceBody">
+            <div class="status-grid">
+              <span>連線</span><strong id="connectionStatus" class="status-off">尚未連線</strong>
+              <span>按鈕</span><strong id="buttonStatus">尚無資料</strong>
+            </div>
+            <div class="device-actions">
+              <button id="testLedBtn" disabled>第 1 顆亮珊瑚色</button>
+              <button id="clearLedBtn" disabled>清除 LED</button>
+              <button id="pressRingBtn" disabled>模擬按鈕 1</button>
+            </div>
+            <p class="command-line">最後指令：<code id="lastCommand">尚未送出</code></p>
+          </div>
+        </section>
+
+        <section class="panel console-panel">
+          <div class="panel-heading static"><span><i class="dot amber"></i> 執行輸出</span><button class="mini-btn" id="clearOutputBtn">清除</button></div>
+          <div class="console" id="output" aria-live="polite"><p class="muted">尚未執行程式。</p></div>
+        </section>
+      </aside>
+    </main>
+
+    <footer>
+      <span>SC-LAB 1.0</span><span>資料只儲存在這台裝置</span><span id="footerMode">學習模式</span><span id="footerDevice">SmartRing：尚未連線</span>
+    </footer>
+  </div>
+
+  <section class="simulator" id="simulator" hidden aria-label="SmartRing 模擬器">
+    <div class="sim-head" id="simDrag"><span><i class="live-dot"></i> SmartRing 模擬器</span><button id="simClose" aria-label="關閉模擬器">×</button></div>
+    <div class="ring" id="ledRing"><div class="ring-center"><strong id="ringMessage">等待程式指令</strong><small>12 LED RING</small></div></div>
+    <div class="sim-footer"><span id="simButtonReadout">按鈕：未按下</span><button id="simPress">按住按鈕 1</button></div>
+  </section>
+
+  <dialog id="taskDialog">
+    <div class="dialog-head"><div><span class="eyebrow">MISSION BRIEF</span><h2 id="dialogTitle">完整任務</h2></div><button id="dialogClose" aria-label="關閉">×</button></div>
+    <div id="dialogContent"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/blockly@11.2.2/blockly_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@11.2.2/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@11.2.2/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@11.2.2/msg/zh-hant.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
