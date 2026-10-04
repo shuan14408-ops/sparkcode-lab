@@ -2,6 +2,8 @@
 
 線上網站：https://shuan14408-ops.github.io/sparkcode-lab/
 
+[![網站畫面](screenshot.webp)](https://shuan14408-ops.github.io/sparkcode-lab/)
+
 用 Blockly 積木寫程式，控制 SmartRing（12 顆 LED 的環形燈與按鈕）的線上學習平台。
 
 ## 設計理念
