@@ -116,7 +116,7 @@
       $('studentClass').value = profile.className || '';
       $('studentNumber').value = profile.number || '';
       $('studentName').value = profile.name || '';
-    } catch (_) { /* ignore malformed local data */ }
+    } catch (_) {}
   }
 
   function defineSparkBlocks() {
@@ -222,7 +222,7 @@
         $('courseCode').value = saved.courseCode;
         loadCourse(saved.courseCode, saved.taskIndex || 0, false);
       }
-    } catch (_) { /* no autosave */ }
+    } catch (_) {}
     updateCode();
     window.addEventListener('resize', () => Blockly.svgResize(state.workspace));
   }
